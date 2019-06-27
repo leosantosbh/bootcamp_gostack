@@ -10,7 +10,10 @@ class UserController {
             .required(),
          password: Yup.string()
             .required()
-            .min(6),
+            .matches(
+               '^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,}',
+               'Senha deve conter 8 caracteres no mínimo, letras maisculas e caracteres especiais'
+            ),
       });
 
       if (!(await schema.isValid(req.body))) {
@@ -39,9 +42,12 @@ class UserController {
       const schema = Yup.object().shape({
          name: Yup.string(),
          email: Yup.string().email(),
-         oldPassword: Yup.string().min(6),
+         oldPassword: Yup.string(),
          password: Yup.string()
-            .min(6)
+            .matches(
+               '^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,}',
+               'Senha deve conter 8 caracteres no mínimo, letras maisculas e caracteres especiais'
+            )
             .when('oldPassword', (oldPassword, field) =>
                oldPassword ? field.required() : field
             ),
