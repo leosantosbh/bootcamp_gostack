@@ -1,6 +1,7 @@
 import * as Yup from 'yup';
 import { parseISO, isBefore } from 'date-fns';
 import Mettup from '../models/Mett';
+import File from '../models/File';
 import Banner from '../models/Banner';
 import User from '../models/User';
 
@@ -17,11 +18,12 @@ class MettControle {
          include: [
             {
                model: Banner,
-               attributes: ['id', 'url', 'path'],
+               attributes: ['path', 'url'],
             },
             {
                model: User,
                attributes: ['id', 'name', 'email'],
+               include: [{ model: File, attributes: ['path', 'url'] }],
             },
          ],
       });

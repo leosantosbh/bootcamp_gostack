@@ -18,6 +18,8 @@ import ProviderController from './app/controllers/ProviderController';
 import AppointController from './app/controllers/AppointController';
 // import schedule agenda
 import ScheduleController from './app/controllers/ScheduleController';
+// import notificações
+import NotificationController from './app/controllers/NotificationController';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -44,6 +46,9 @@ routes.get('/appointments', AppointController.index);
 
 routes.get('/schedule', ScheduleController.index);
 // rota para realizar upload do arquivo "foto" do multer (filecontroller)
+
+routes.get('/notifications', NotificationController.index);
+routes.put('/notifications/:id', NotificationController.update);
 
 routes.post('/files', upload.single('file'), FileController.store);
 

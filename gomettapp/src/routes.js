@@ -8,6 +8,7 @@ import FileController from './app/controllers/FileController';
 import BannerController from './app/controllers/BannerController';
 import MettController from './app/controllers/MettController';
 import AgendController from './app/controllers/AgendController';
+import NotificationController from './app/controllers/NotificationController';
 
 import authMid from './app/middlewares/auth';
 
@@ -22,15 +23,20 @@ routes.use(authMid);
 
 routes.put('/users', UserController.update);
 
-routes.post('/files', upload.single('file'), FileController.store);
-routes.post('/banners', upload.single('file'), BannerController.store);
-
 routes.post('/metts', MettController.store);
+
 routes.get('/metts', MettController.index);
+
 routes.delete('/metts/:id', MettController.delete);
 
 routes.get('/agends', AgendController.index);
 
+routes.get('/notifications', NotificationController.index);
+routes.put('/notifications/:id', NotificationController.update);
+
 routes.post('/agends/:id/subscribe', AgendController.store);
+
+routes.post('/files', upload.single('file'), FileController.store);
+routes.post('/banners', upload.single('file'), BannerController.store);
 
 export default routes;

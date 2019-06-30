@@ -1,8 +1,10 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore } from 'date-fns';
+import { startOfHour, parseISO, isBefore, format } from 'date-fns';
+import pt from 'date-fns/locale/pt-BR';
 import User from '../models/User';
 import File from '../models/File';
 import Appointment from '../models/Appointment';
+import Notification from '../schemas/Notification';
 
 class AppointController {
    async index(req, res) {
@@ -53,8 +55,14 @@ class AppointController {
          },
       });
       // valida se usuario q vai receber a marcação é provider
-      if (!isProvider) {
+      if (!(res.userId === provider_id)) {
          return res.status(400).json({ error: 'Usuário não é um provedor' });
+      }
+
+      if (!isProvider) {
+         return res
+            .status(400)
+            .json({ error: 'Não é possivel agendar com você mesmo' });
       }
 
       const hourStart = startOfHour(parseISO(date));
@@ -83,6 +91,18 @@ class AppointController {
          user_id: req.userId,
          provider_id,
          date,
+      });
+
+      const user = await User.findByPk(req.userId);
+
+      const fomatedDate = format(hourStart, "'dia' dd 'de' MMM', às' H:mm'h'", {
+         locale: pt,
+      });
+
+      // notificar prestador
+      await Notification.create({
+         content: `Novo agendamento de ${user.name} para o ${fomatedDate}`,
+         user: provider_id,
       });
 
       return res.json(appoint);

@@ -2,8 +2,10 @@ import { Op } from 'sequelize';
 import { isBefore } from 'date-fns';
 import User from '../models/User';
 import Mettup from '../models/Mett';
+import File from '../models/File';
 import Banner from '../models/Banner';
 import Agend from '../models/Agend';
+import Notification from '../schemas/Notification';
 
 class AgendController {
    async index(req, res) {
@@ -23,13 +25,17 @@ class AgendController {
                },
                attributes: ['titulo', 'descricao', 'local', 'date'],
                include: [
-                  { model: User, attributes: ['name', 'email'] },
+                  {
+                     model: User,
+                     attributes: ['name', 'email'],
+                  },
                   { model: Banner, attributes: ['path', 'url'] },
                ],
             },
             {
                model: User,
                attributes: ['name', 'email'],
+               include: [{ model: File, attributes: ['path', 'url'] }],
             },
          ],
          order: [[Mettup, 'date']],
@@ -40,10 +46,11 @@ class AgendController {
 
    async store(req, res) {
       const user = await User.findByPk(req.userId, {
-         attributes: ['id'],
+         attributes: ['id', 'name'],
       });
+
       const mettup = await Mettup.findByPk(req.params.id, {
-         attributes: ['id', 'date', 'user_id'],
+         attributes: ['id', 'date', 'user_id', 'titulo'],
       });
 
       const agend = await Agend.findOne({
@@ -78,6 +85,12 @@ class AgendController {
       if (checkDate) {
          return res.status(400).json({ error: 'Existe conflito de horário' });
       }
+
+      // notificar prestador
+      await Notification.create({
+         content: `Novo agendamento de ${user.name} para a tarefa ${mettup.titulo}`,
+         user: mettup.user_id,
+      });
 
       const subscribe = await Agend.create({
          user_id: user.id,
