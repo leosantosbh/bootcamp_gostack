@@ -21,6 +21,8 @@ import ScheduleController from './app/controllers/ScheduleController';
 // import notificações
 import NotificationController from './app/controllers/NotificationController';
 
+import AvailableController from './app/controllers/AvailableController';
+
 import authMiddleware from './app/middlewares/auth';
 
 const routes = new Router();
@@ -37,13 +39,16 @@ routes.put('/users', UserController.update);
 
 // lista provedores
 routes.get('/providers', ProviderController.index);
+routes.get('/providers/:id/available', AvailableController.index);
 
 // rota para agendamento
 routes.post('/appointments', AppointController.store);
 // lista agendamento cliente
 routes.get('/appointments', AppointController.index);
-// lista agenda provider
+// deleta agendamento cliente
+routes.delete('/appointments/:id', AppointController.delete);
 
+// lista agenda provider
 routes.get('/schedule', ScheduleController.index);
 // rota para realizar upload do arquivo "foto" do multer (filecontroller)
 

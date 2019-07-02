@@ -7,6 +7,9 @@ import Banner from '../models/Banner';
 import Agend from '../models/Agend';
 import Notification from '../schemas/Notification';
 
+import NotificationMail from '../jobs/NotificationMail';
+import Queue from '../../lib/Queue';
+
 class AgendController {
    async index(req, res) {
       const { page = 1 } = req.query;
@@ -18,6 +21,7 @@ class AgendController {
          include: [
             {
                model: Mettup,
+               as: 'mett',
                where: {
                   date: {
                      [Op.gt]: new Date(),
@@ -27,6 +31,7 @@ class AgendController {
                include: [
                   {
                      model: User,
+                     as: 'user',
                      attributes: ['name', 'email'],
                   },
                   { model: Banner, attributes: ['path', 'url'] },
@@ -34,11 +39,12 @@ class AgendController {
             },
             {
                model: User,
+               as: 'user_invited',
                attributes: ['name', 'email'],
                include: [{ model: File, attributes: ['path', 'url'] }],
             },
          ],
-         order: [[Mettup, 'date']],
+         order: [['mett', 'date']],
       });
 
       return res.json(agend);
@@ -46,11 +52,12 @@ class AgendController {
 
    async store(req, res) {
       const user = await User.findByPk(req.userId, {
-         attributes: ['id', 'name'],
+         attributes: ['id', 'name', 'email'],
       });
 
       const mettup = await Mettup.findByPk(req.params.id, {
-         attributes: ['id', 'date', 'user_id', 'titulo'],
+         attributes: ['id', 'date', 'user_id', 'titulo', 'descricao'],
+         include: [{ model: User, as: 'user', attributes: ['name', 'email'] }],
       });
 
       const agend = await Agend.findOne({
@@ -62,6 +69,7 @@ class AgendController {
          include: [
             {
                model: Mettup,
+               as: 'mett',
                required: true,
                where: {
                   date: mettup.date,
@@ -92,9 +100,16 @@ class AgendController {
          user: mettup.user_id,
       });
 
+      // return res.json({ mettup, user });
+
       const subscribe = await Agend.create({
          user_id: user.id,
          mett_id: mettup.id,
+      });
+
+      await Queue.add(NotificationMail.key, {
+         mettup,
+         user,
       });
 
       // desestruturar para pegar alguns campos de req.fil

@@ -24,17 +24,14 @@ routes.use(authMid);
 routes.put('/users', UserController.update);
 
 routes.post('/metts', MettController.store);
-
 routes.get('/metts', MettController.index);
-
 routes.delete('/metts/:id', MettController.delete);
 
 routes.get('/agends', AgendController.index);
+routes.post('/agends/:id/subscribe', AgendController.store);
 
 routes.get('/notifications', NotificationController.index);
 routes.put('/notifications/:id', NotificationController.update);
-
-routes.post('/agends/:id/subscribe', AgendController.store);
 
 routes.post('/files', upload.single('file'), FileController.store);
 routes.post('/banners', upload.single('file'), BannerController.store);

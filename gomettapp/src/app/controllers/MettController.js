@@ -22,6 +22,7 @@ class MettControle {
             },
             {
                model: User,
+               as: 'user',
                attributes: ['id', 'name', 'email'],
                include: [{ model: File, attributes: ['path', 'url'] }],
             },

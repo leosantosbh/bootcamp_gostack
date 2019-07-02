@@ -11,8 +11,11 @@ class Agend extends Model {
    }
 
    static associate(models) {
-      this.belongsTo(models.Mettup, { foreignKey: 'mett_id' });
-      this.belongsTo(models.User, { foreignKey: 'user_id' });
+      this.belongsTo(models.Mettup, { foreignKey: 'mett_id', as: 'mett' });
+      this.belongsTo(models.User, {
+         foreignKey: 'user_id',
+         as: 'user_invited',
+      });
    }
 }
 

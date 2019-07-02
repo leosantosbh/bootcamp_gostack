@@ -1,25 +1,49 @@
+import 'dotenv/config';
+
 import express from 'express';
 import path from 'path';
+import Youch from 'youch';
+import * as Sentry from '@sentry/node';
+import sentryConfig from './config/sentry';
+import 'express-async-errors';
 import routes from './routes';
 
 import './database';
 
 class App {
    constructor() {
+      this.server = express();
+      Sentry.init(sentryConfig);
+
+      this.middlewares();
+      this.routes();
+      this.exceptionHandler();
+   }
+
+   middlewares() {
       const dir_image = express.static(
          path.resolve(__dirname, '..', 'temp', 'uploads')
       );
-
-      this.server = express();
-
       this.server.use(express.json());
-      // rota atributo estático para a rota files e ir até a imagem passada pelo retorno do usuário
       this.server.use('/banners', dir_image);
-
-      // rota atributo estático para a rota files e ir até a imagem passada pelo retorno do usuário
       this.server.use('/files', dir_image);
+   }
 
+   routes() {
       this.server.use(routes);
+      this.server.use(Sentry.Handlers.errorHandler());
+   }
+
+   exceptionHandler() {
+      this.server.use(async (err, req, res, next) => {
+         if (process.env.NODE_ENV === 'development') {
+            const errors = await new Youch(err, req).toJSON();
+
+            return res.status(500).json(errors);
+         }
+
+         return res.status(500).json({ error: 'Internal server error' });
+      });
    }
 }
 
