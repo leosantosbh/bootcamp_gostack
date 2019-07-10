@@ -22,7 +22,7 @@ export const Input = styled.TextInput.attrs({
   background: #333;
   border-radius: 4px;
   padding: 0 15px;
-  border: 1px solid #333;
+  border: 2px solid ${props => (props.loading ? 'red' : '#999')};
   color: #999;
 `;
 

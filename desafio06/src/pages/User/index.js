@@ -36,13 +36,17 @@ export default class User extends Component {
     loading: false,
     page: 1,
     refreshing: false,
+    // eslint-disable-next-line react/no-unused-state
+    count: 0,
   };
 
   // eslint-disable-next-line react/sort-comp
   handlePage = async () => {
-    const { page } = this.state;
+    const { page, count } = this.state;
     await this.setState({ page: page + 1 });
-    this.componentDidMount();
+    if (count > 19) {
+      this.componentDidMount();
+    }
   };
 
   refreshList = async () => {
@@ -58,12 +62,17 @@ export default class User extends Component {
 
     const response = await api.get(`users/${user.login}/starred`, {
       params: {
-        per_page: 10,
+        per_page: 20,
         page,
       },
     });
 
-    this.setState({ stars: response.data, loading: false, refreshing: false });
+    this.setState({
+      stars: response.data,
+      loading: false,
+      refreshing: false,
+      count: response.data.length,
+    });
   }
 
   handleNavigate = repository => {
