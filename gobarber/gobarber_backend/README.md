@@ -1,1 +1,0 @@
-# gobarber_backend
